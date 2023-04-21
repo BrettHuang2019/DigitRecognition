@@ -21,22 +21,8 @@ public class MnistTest : MonoBehaviour
         engine = WorkerFactory.CreateWorker(runtimeModel);
         
     }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            int channel = 1;
-            Tensor input = new Tensor(image, channel);
-            Tensor output = engine.Execute(input).PeekOutput();
-            input.Dispose();
-
-            predicted = output.AsFloats().SoftMax().ToArray();
-            Debug.Log(predicted);
-        }
-    }
-
-    public void OnDrawTexture(RenderTexture texture)
+    
+    public void OnDrawTexture(Texture texture)
     {
         if (!isProcessing)
         {
@@ -44,7 +30,7 @@ public class MnistTest : MonoBehaviour
         }
     }
 
-    private void DrawInference(RenderTexture texture)
+    private void DrawInference(Texture texture)
     {
         isProcessing = true;
         int channel = 1;
