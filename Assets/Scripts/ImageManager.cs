@@ -15,7 +15,7 @@ public class ImageManager : MonoBehaviour
         
         Debug.Log(folderPath);
         byte[] pngData = image.EncodeToPNG();
-        string filePath = Path.Combine(folderPath , number + "_" + DateTimeOffset.Now.ToUnixTimeMilliseconds() + ".png");
+        string filePath = Path.Combine(folderPath , number + "_" + DateTimeOffset.Now.ToUnixTimeMilliseconds() + ".jpg");
         
         if (!File.Exists(filePath))
             File.WriteAllBytes(filePath, pngData);

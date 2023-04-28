@@ -45,7 +45,7 @@ public class PredictionPlot : MonoBehaviour
         
         for (int i = 0; i < targetFloats.Length; i++)
         {
-            barPlots[i].fillAmount = Mathf.Lerp(barPlots[i].fillAmount, targetFloats[i], Time.deltaTime * 10);
+            barPlots[i].fillAmount = Mathf.Lerp(barPlots[i].fillAmount, targetFloats[i], Time.deltaTime * 15);
             barPlots[i].color = Color.Lerp(Color.yellow, Color.green, barPlots[i].fillAmount);
         }
     }

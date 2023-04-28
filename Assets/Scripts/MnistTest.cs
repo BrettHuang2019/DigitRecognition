@@ -20,6 +20,20 @@ public class MnistTest : MonoBehaviour
         runtimeModel = ModelLoader.Load(model);
         engine = WorkerFactory.CreateWorker(runtimeModel);
         
+        // Instant Inference
+        Tensor input = new Tensor(image, 1);
+        Tensor output = engine.Execute(input).PeekOutput();
+        input.Dispose();
+        predicted = output.AsFloats().SoftMax().ToArray();
+        
+        //Print prediction
+        string result = "";
+        foreach (float predict in predicted)
+        {
+            result += predict + ",";
+        }
+
+        Debug.Log(result);
     }
     
     public void OnDrawTexture(Texture texture)
