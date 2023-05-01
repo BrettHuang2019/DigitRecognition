@@ -4,9 +4,10 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.IO;
 
 [RequireComponent(typeof(RawImage))]
-public class LineDrawer : MonoBehaviour//, IDragHandler
+public class LineDrawer : MonoBehaviour //, IDragHandler
 {
 
 
@@ -22,12 +23,13 @@ public class LineDrawer : MonoBehaviour//, IDragHandler
     [SerializeField] RenderTextureFormat format = RenderTextureFormat.R8;
     [SerializeField] Shader shader;
     [SerializeField] private RawImage sample;
+    [SerializeField] private RawImage trimSample;
     [SerializeField] private Line linePrefab;
     [SerializeField] private Transform lineParent;
     [SerializeField] private Camera lineRenderCam;
-    
-    
-    
+
+
+
     [SerializeField] DrawEvent OnDraw = new DrawEvent();
 
 
@@ -76,7 +78,7 @@ public class LineDrawer : MonoBehaviour//, IDragHandler
         entryDrag.eventID = EventTriggerType.Drag;
         entryDrag.callback.AddListener((data) => { OnDragDelegate((PointerEventData)data); });
         trigger.triggers.Add(entryDrag);
-        
+
         EventTrigger.Entry entryEndDrag = new EventTrigger.Entry();
         entryEndDrag.eventID = EventTriggerType.EndDrag;
         entryEndDrag.callback.AddListener((data) => { OnEndDragDelegate((PointerEventData)data); });
@@ -99,19 +101,19 @@ public class LineDrawer : MonoBehaviour//, IDragHandler
         {
             currentLine = Instantiate(linePrefab, Vector2.zero, Quaternion.identity, lineParent);
         }
-        
+
         currentLine.SetPosition(targetpos);
     }
-    
+
     private void OnEndDragDelegate(PointerEventData data)
     {
         if (currentLine) currentLine = null;
-        
+
         Texture rt = SampleDrawingToTexture(new[] { 28, 28 });
-        
+
         OnDraw.Invoke(rt);
     }
-    
+
 
     void OnDisable()
     {
@@ -123,8 +125,8 @@ public class LineDrawer : MonoBehaviour//, IDragHandler
     public void ClearTexture()
     {
         Graphics.Blit(clearTexture, texture);
-        
-        for (int i=0; i < lineParent.childCount; i++)
+
+        for (int i = 0; i < lineParent.childCount; i++)
             Destroy(lineParent.GetChild(i).gameObject);
     }
 
@@ -185,7 +187,7 @@ public class LineDrawer : MonoBehaviour//, IDragHandler
         lineMaterial.SetPass(0);
         Graphics.DrawMeshNow(lineMesh, Matrix4x4.identity);
         // Graphics.DrawMeshNow(lineMesh, (p0+p1)/2, Quaternion.identity);
-        
+
 
         RenderTexture.active = prevRT;
     }
@@ -246,9 +248,9 @@ public class LineDrawer : MonoBehaviour//, IDragHandler
     private void OnMouseDrag()
     {
         Debug.Log("OnDrag");
-        
+
     }
-    
+
     public Texture SampleDrawingToTexture(int[] dim)
     {
         RenderTexture rt = new RenderTexture(dim[0], dim[1], 24);
@@ -262,9 +264,118 @@ public class LineDrawer : MonoBehaviour//, IDragHandler
         // sampleMat.SetTexture("_MainTex", tex);
         sample.texture = tex;
 
-        return tex;
+        // Find the bounds of the non-transparent pixels
+        int left = texture.width;
+        int right = 0;
+        int top = texture.height;
+        int bottom = 0;
+        Color[] pixels = tex.GetPixels();
+
+        // SaveColorArray(pixels);
+
+        for (int x = 0; x < texture.width; x++)
+        {
+            for (int y = 0; y < texture.height; y++)
+            {
+                Color pixel = pixels[y * texture.width + x];
+                if (pixel.r > 0)
+                {
+                    if (x < left) left = x;
+                    if (x > right) right = x;
+                    if (y < top) top = y;
+                    if (y > bottom) bottom = y;
+                }
+            }
+        }
+
+        // Crop the texture
+        int width = right - left + 1 + 6;
+        int height = bottom - top + 1 + 6;
+        Texture2D croppedTexture = new Texture2D(width, height);
+        Color[] croppedPixels = new Color[width * height];
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                int originalX = left + x - 3;
+                int originalY = top + y - 3;
+                Color pixel = new Color(0, 0, 0, 1); 
+                if (originalX >= 0 && originalX < texture.width && originalY >= 0 && originalY < texture.height)
+                {
+                    pixel = pixels[originalY * texture.width + originalX];
+                }
+                croppedPixels[y * width + x] = pixel;
+            }
+        }
+
+        croppedTexture.SetPixels(croppedPixels);
+        croppedTexture.Apply();
+
+        // Scale the texture to 28x28
+        Texture2D scaledTexture = new Texture2D(28, 28);
+        Color[] scaledPixels = scaledTexture.GetPixels();
+
+        for (int x = 0; x < 28; x++)
+        {
+            for (int y = 0; y < 28; y++)
+            {
+                float u = (float)x / 28f * (float)(width - 1) / (float)width;
+                float v = (float)y / 28f * (float)(height - 1) / (float)height;
+                Color pixel = croppedTexture.GetPixelBilinear(u, v);
+                scaledPixels[y * 28 + x] = pixel;
+            }
+        }
+
+        scaledTexture.SetPixels(scaledPixels);
+        scaledTexture.Apply();
+
+        trimSample.texture = scaledTexture;
+
+
+        return scaledTexture;
     }
-    
-    
+
+    private void SaveColorArray(Color[] colorArray)
+    {
+        Color[] colors = colorArray;
+        string filePath = Application.persistentDataPath + "/colors.json"; // specify the file path
+
+// Convert the color data to JSON
+        ColorData[] colorDataArray = new ColorData[colors.Length];
+        for (int i = 0;
+             i < colors.Length;
+             i++)
+        {
+            colorDataArray[i].r = colors[i].r;
+            colorDataArray[i].g = colors[i].g;
+            colorDataArray[i].b = colors[i].b;
+            colorDataArray[i].a = colors[i].a;
+        }
+
+        JsonClass jc = new JsonClass(colorDataArray);
+
+        string json = JsonUtility.ToJson(jc);
+        File.WriteAllText(filePath, json);
+    }
+
+    [Serializable]
+    public struct ColorData
+    {
+        public float r;
+        public float g;
+        public float b;
+        public float a;
+    }
+
+    public class JsonClass
+    {
+        public ColorData[] colorDataArray;
+
+        public JsonClass(ColorData[] arr)
+        {
+            this.colorDataArray = arr;
+        }
+    }
 }
 
