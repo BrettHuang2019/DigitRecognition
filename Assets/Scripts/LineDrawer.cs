@@ -102,7 +102,7 @@ public class LineDrawer : MonoBehaviour //, IDragHandler
             currentLine = Instantiate(linePrefab, Vector2.zero, Quaternion.identity, lineParent);
         }
 
-        currentLine.SetPosition(targetpos);
+        currentLine.AddPosition(targetpos);
     }
 
     private void OnEndDragDelegate(PointerEventData data)
