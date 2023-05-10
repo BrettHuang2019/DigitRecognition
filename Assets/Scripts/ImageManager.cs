@@ -14,11 +14,11 @@ public class ImageManager : MonoBehaviour
             Directory.CreateDirectory(folderPath);
         
         Debug.Log(folderPath);
-        byte[] pngData = image.EncodeToPNG();
+        byte[] jpgData = image.EncodeToJPG();
         string filePath = Path.Combine(folderPath , number + "_" + DateTimeOffset.Now.ToUnixTimeMilliseconds() + ".jpg");
         
         if (!File.Exists(filePath))
-            File.WriteAllBytes(filePath, pngData);
+            File.WriteAllBytes(filePath, jpgData);
     }
 
     public Dictionary<string, Dictionary<string, Texture2D>> LoadImages()

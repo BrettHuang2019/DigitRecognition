@@ -8,6 +8,7 @@ public class MnistTest : MonoBehaviour
     public NNModel model;
     public Texture2D image;
     public PredictionPlot predictionPlot;
+    public PreviewManager previewManager; 
 
     private Model runtimeModel;
     private IWorker engine;
@@ -49,6 +50,20 @@ public class MnistTest : MonoBehaviour
         isProcessing = true;
         int channel = 1;
         Tensor input = new Tensor(texture, channel);
+        Tensor output = engine.Execute(input).PeekOutput();
+        input.Dispose();
+        predicted = output.AsFloats().SoftMax().ToArray();
+        predictionPlot.UpdatePlot(predicted);
+        isProcessing = false;
+    }
+
+    public void DrawInferentFromPreview()
+    {
+        if (!previewManager.ScaledTexture) return;
+        
+        isProcessing = true;
+        int channel = 1;
+        Tensor input = new Tensor(previewManager.ScaledTexture, channel);
         Tensor output = engine.Execute(input).PeekOutput();
         input.Dispose();
         predicted = output.AsFloats().SoftMax().ToArray();

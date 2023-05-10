@@ -144,4 +144,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lineRenderer: {fileID: 9156024479380688781}
   resolution: 0.1
-  minAngle: 130
+  minAngle: 95

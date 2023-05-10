@@ -9,6 +9,8 @@ public class SaveImage : MonoBehaviour
     [SerializeField] private ImageManager imageManager;
     [SerializeField] private ToggleGroup toggleGroup;
     [SerializeField] private LineDrawer lineDrawer;
+    [SerializeField] private PreviewManager previewManager;
+    
     
     private Button btn;
     private void Start()
@@ -31,7 +33,7 @@ public class SaveImage : MonoBehaviour
     {
         if (btn.interactable)
         {
-            imageManager.SaveImage(lineDrawer.CurrentTexture2D, int.Parse(toggleGroup.GetFirstActiveToggle().name));
+            imageManager.SaveImage(previewManager.ScaledTexture, int.Parse(toggleGroup.GetFirstActiveToggle().name));
             btn.interactable = false;
         }
     }

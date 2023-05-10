@@ -7,6 +7,7 @@ public class Line : MonoBehaviour
     [SerializeField] private float resolution;
     [SerializeField] private float minAngle;
 
+    public Vector2 LastPos => lineRenderer.GetPosition(lineRenderer.positionCount - 1); 
     public void AddPosition(Vector2 pos)
     {
         lineRenderer.positionCount++;
