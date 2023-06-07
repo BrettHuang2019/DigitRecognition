@@ -37,7 +37,7 @@ public class PreviewManager : MonoBehaviour
         renderCamera.Render();
 
         ShowRenderImage(renderTexture);
-         ShowCroppedImage(texture2D_256);
+        ShowCroppedImage(texture2D_256);
         ShowScaledImage(croppedTexture);
     }
 

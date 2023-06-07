@@ -8,7 +8,7 @@ public class MnistTest : MonoBehaviour
     public NNModel model;
     public Texture2D image;
     public PredictionPlot predictionPlot;
-    public PreviewManager previewManager; 
+    public PreviewManager previewManager;
 
     private Model runtimeModel;
     private IWorker engine;

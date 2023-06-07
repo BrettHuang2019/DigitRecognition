@@ -8,9 +8,7 @@ public class SaveImage : MonoBehaviour
 {
     [SerializeField] private ImageManager imageManager;
     [SerializeField] private ToggleGroup toggleGroup;
-    [SerializeField] private LineDrawer lineDrawer;
     [SerializeField] private PreviewManager previewManager;
-    
     
     private Button btn;
     private void Start()

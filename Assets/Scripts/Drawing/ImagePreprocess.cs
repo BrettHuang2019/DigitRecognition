@@ -12,7 +12,7 @@ public class ImagePreprocess : MonoBehaviour
     private string[] imageNames;
     private string persistenDataPath;
 
-    private void Start()
+    public void StartProcess()
     {
         persistenDataPath = Application.persistentDataPath;
         
@@ -24,7 +24,7 @@ public class ImagePreprocess : MonoBehaviour
             imageNames = LoadImagesInFolder(folderName);
             StartCoroutine(ProcessImagesCoroutine(imageNames, folderName));
         }
-        Debug.Log("Start finish");
+        Debug.Log("Process finish");
     }
 
     private void SetUpFolders()
@@ -63,6 +63,8 @@ public class ImagePreprocess : MonoBehaviour
             .ToArray();
     }
     
+
+    // Async await create a new thread so it won't work on texture modifications. So we have to use coroutine.
     private async Task ProcessImageAsync(string imageName, string label)
     {
         await Task.Run(() =>
